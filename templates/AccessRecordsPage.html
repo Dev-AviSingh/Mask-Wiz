@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mask Wiz</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'mainStylesheet.css') }}">\
+	<script type="text/javascript">
+		function pageOnLoad(){
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("GET", "/getRecords", false);
+			xhttp.setRequestHeader("Content-Type", "text/plain");
+			xhttp.onreadystatechange = function(){
+					if(this.readyState == 4 && this.status == 200){
+						document.getElementById('dataBox').innerHTML = xhttp.responseText;
+					}
+			};
+			xhttp.send();
+		}
+		// set up the server
+		// create another program to receive mask data
+		// simulate mask code and test it
+		// do the whole prototype
+	</script>
+</head>
+
+<body onload="pageOnLoad()">
+	<div class="title">
+		<div style = "
+	display: flex;
+	width: 80%;
+	height: 65%;
+	margin: 10%;
+	font-size: 3vw;
+	color: white;
+	border: 0.1vw solid white;
+	vertical-align: middle;
+	justify-content: center;
+	align-items: center;">Mask Wiz</div>
+		
+	</div>
+	<div class="sidePanel">
+		<a href="/">
+			<div class="sidePanelItem" style="top: 0%;"><div style="padding-top: 11%; font-size: 2vw">Data Base</div></div>
+		</a>
+		<a href="/recordsPage">
+			<div class="sidePanelItemSelected" style="top: 20%;"><div style="padding-top: 11%; font-size: 2vw">Access Records</div></div>
+		</a>
+		<a href="/addData">
+			<div class="sidePanelItem" style="top: 40%;"><div style="padding-top: 11%; font-size: 2vw">Add Data</div></div>
+		</a>
+
+	</div>
+	<div class="content">
+		<div class = "listTitle">
+			<span class="listTitleText">Access Records</span>
+			<div id="sectionDivision">
+			</div>
+		</div>
+		<div id="dataBox" class="tableSection" style="overflow-y: scroll;font-size: 1.5vw">
+		</div>
+
+	</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mask Wiz</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'mainStylesheet.css') }}">\
+	<script type="text/javascript">
+		var newStudentUID = null;
+
+		function pageOnLoad(){
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("GET", "/generateUID", true);
+			xhttp.setRequestHeader("Content-Type", "text/plain");
+			xhttp.onreadystatechange = function(){
+					if(this.readyState == 4 && this.status == 200){
+						console.log(xhttp.responseText);
+						document.getElementById('generatedUID').innerHTML = xhttp.responseText;
+						newStudentUID = xhttp.responseText;
+					}
+			};
+			xhttp.send("UID");
+		}
+		function submitNewStudent(){
+			var form = document.forms['newStudentForm'];
+			console.log(form);
+			var i;
+			if(form['studentName'].value != "" && form['studentStandard'].value != "" && form['studentDivision'].value != ""){
+				var data;
+				var studentUID = parseInt(newStudentUID);
+				if (Number.isNaN(studentUID)){
+					alert("Student UID is supposed to be a number.");
+					return;
+				}
+				data = {
+					name: form['studentName'].value,
+					uid: studentUID,
+					standard: form['studentStandard'].value,
+					division: form['studentDivision'].value,
+					sectionName: "\\"+form['studentStandard'].value+form['studentDivision'].value
+				}
+				var xhttp = new XMLHttpRequest();
+				xhttp.open("POST", "/addData", true);
+				xhttp.setRequestHeader("Content-Type", "application/json");
+				xhttp.onreadystatechange = function(){
+					if(this.readyState == 4 && this.status == 200){
+						console.log(xhttp.responseText);
+						alert(xhttp.responseText);
+
+						if((xhttp.responseText.indexOf("is added to" != -1)) || (xhttp.responseText.indexOf("already exists" != -1))){
+							pageOnLoad();
+						}
+					}
+				};
+				xhttp.send(JSON.stringify(data));
+			}else{
+				alert("Please fill out all the fields for student data.");
+				return;
+			}
+		}
+		function submitNewEntry(){
+			var form = document.forms['newEntryForm'];
+			console.log(form);
+			var i;
+			// validate the date
+			var date = [];
+			var dateElements = document.getElementsByClassName('dateTimeIndividualValue');
+			console.log(dateElements);
+			var dateValues = [];
+			for(i = 0; i < dateElements.length; i++){
+				var val = dateElements[i].value;
+				if(val == ""){
+					alert("Please fill out all the fields for student data.");
+					return;
+				}
+				if(Number.isNaN(parseInt(val))){
+					alert("Please Fill The Date Properly." + val);
+					return;
+				}
+				dateValues.push(val);
+			}
+
+			var stringDate = dateValues[0]+"/"+dateValues[1]+"/"+dateValues[2]+" "+dateValues[3]+":"+dateValues[4]+":"+dateValues[5]; 
+			var allValuesFilled = (form['studentUID'].value != "" && form['studentStandard'].value != "" && form['studentDivision'].value != "" && form['studentPulse'].value != "" && form['studentTemperature'].value != "");
+
+			if(allValuesFilled){
+				var data;
+				var studentUID = parseInt(form['studentUID'].value);
+				var studentPulse = parseInt(form['studentPulse'].value);
+				var studentTemperature = parseFloat(form['studentTemperature'].value);
+
+				console.log(form['studentDate']);
+
+				if (Number.isNaN(studentUID)){
+					alert("Student UID is supposed to be a number.");return;
+				}
+				if (Number.isNaN(studentPulse)){
+					alert("Student Pulse is supposed to be a number.");return;
+				}
+				if (Number.isNaN(studentTemperature)){
+					alert("Student Temperature is supposed to be a number.");return;
+				}
+				data = {
+					uid: studentUID,
+					pulse: studentPulse,
+					temperature: studentTemperature,
+					date: stringDate,
+					sectionName: "\\"+form['studentStandard'].value+form['studentDivision'].value
+				}
+				var xhttp = new XMLHttpRequest();
+				xhttp.open("POST", "/addData", true);
+				xhttp.setRequestHeader("Content-Type", "application/json");
+				xhttp.onreadystatechange = function(){
+					if(this.readyState == 4 && this.status == 200){
+						console.log(xhttp.responseText);
+						alert(xhttp.responseText);
+					}
+				};
+				xhttp.send(JSON.stringify(data)); 
+			}else{
+				alert("Please fill out all the fields for student data.");
+				return;
+			}
+		}
+
+		function addNewSection(){
+			var section = document.getElementById("addNewSectionEntry").value.toUpperCase();
+			if(section == ""){
+				alert("Please fill the add new section field, if you are trying to add a section.");
+				return;
+			}
+
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("POST", "/addSection", true);
+			xhttp.setRequestHeader("Content-Type", "text/plain");
+			xhttp.onreadystatechange = function(){
+				if(this.readyState == 4 && this.status == 200){
+						alert(xhttp.responseText);
+					}
+			};
+			xhttp.send(section);
+		}
+
+		function deleteStudent(){
+			var uid = document.getElementById("deleteStudentUIDEntry").value;
+			if(uid == ""){
+				alert("Please fill in the student UID you want to delete.");
+				return;
+			}
+			if(Number.isNaN(parseInt(uid))){
+				alert("Student UID is supposed to be a number.");
+				return;
+			}
+			xhttp = new XMLHttpRequest()
+			xhttp.open("POST", "/deleteStudent", false);
+			xhttp.onreadystatechange = function(){
+				if(this.readyState == 4 && this.status == 200){
+						alert(xhttp.responseText);
+				}
+			};
+			xhttp.send(parseInt(uid));
+		}
+		function deleteSection(){
+			var section = document.getElementById("deleteSectionEntry").value;
+			if(section == ""){
+				alert("Please fill in the Section you want to delete.");
+				return;
+			}
+			xhttp = new XMLHttpRequest()
+			xhttp.open("POST", "/deleteSection", false);
+			xhttp.onreadystatechange = function(){
+				if(this.readyState == 4 && this.status == 200){
+						alert(xhttp.responseText);
+				}
+			};
+			xhttp.send(section);
+		}
+		function switchDeleteAndAddDataDivs(){
+			var deleteDiv = document.getElementById('deleteDataSection');
+			console.log(deleteDiv.style.display);
+			if(deleteDiv.style.display == "none"){
+				document.getElementById('deleteDataSwitchButton').innerText = "Add Data";
+				document.getElementById('switchDeleteAndAddDataButton').innerText = "Add Data";
+				deleteDiv.style.display = "block";
+			}else{
+				document.getElementById('deleteDataSwitchButton').innerText = "Delete Data";
+				document.getElementById('switchDeleteAndAddDataButton').innerText = "Delete Data";
+				deleteDiv.style.display = "none";
+			}
+		}
+		// set up the server
+		// create another program to receive mask data
+		// simulate mask code and test it
+		// do the whole prototype
+	</script>
+</head>
+
+<body onload="pageOnLoad()">
+	<div class="title">
+		<div style = "
+	display: flex;
+	width: 80%;
+	height: 65%;
+	margin: 10%;
+	font-size: 3vw;
+	color: white;
+	border: 0.1vw solid white;
+	vertical-align: middle;
+	justify-content: center;
+	align-items: center;">Mask Wiz</div>
+		
+	</div>
+	<div class="sidePanel">
+		<a href="/">
+			<div class="sidePanelItem" style="top: 0%;"><div style="padding-top: 11%; font-size: 2vw">Data Base</div></div>
+		</a>
+		<a href="/recordsPage">
+			<div class="sidePanelItem" style="top: 20%;"><div style="padding-top: 11%; font-size: 2vw">Access Records</div></div>
+		</a>
+		<a href="/addData">
+			<div class="sidePanelItemSelected" style="top: 40%;"><div style="padding-top: 11%; font-size: 2vw">Add Data</div></div>
+		</a>
+
+	</div>
+	<div class="content">
+		<div class = "listTitle">
+			<span class="listTitleText">Add Data</span>
+			<div id="switchDeleteAndAddDataButton" onclick="switchDeleteAndAddDataDivs()">
+				Delete Data
+			</div>
+
+			<div id="sectionDivision">
+				<div id="addNewSectionDiv">
+						<input maxlength="3" type="text" name="section" id="addNewSectionEntry" placeholder="section" />
+						<div id="addNewSectionSubmitButtonDiv" onclick="addNewSection()">Add New Section</div>
+				</div>
+			</div>
+		</div>
+		<div class="tableSection" style="overflow-y: visible;">
+			<div id="addNewStudent">
+				<form id="newStudentForm" onsubmit="submitNewStudent()">
+					<div class="studentFormLabel" style="font-weight: bold; top: 10%;">
+							Add New Student:
+					</div>
+					<label class = "studentFormLabel" style="top: 20%;">Name : </label>
+					<input type="text" name="studentName" class = "studentFormEntry" style="top: 20%;"/>
+
+					<label class = "studentFormLabel" style="top: 35%;">UID : </label>
+					
+					<label id="generatedUID" name="studentUID" class = "studentFormEntry" style="top: 35%;font-size: 2vw"/>0</label>
+
+					<label class = "studentFormLabel" style="top: 50%;">Standard : </label>
+					<input type="text" name="studentStandard" class = "studentFormEntry" style="top: 50%;"/>
+
+					<label class = "studentFormLabel" style="top: 65%;">Division : </label>
+					<input type="text" name="studentDivision" class = "studentFormEntry" style="top: 65%;"/>
+
+					<div class="studentFormSubmit" onclick="submitNewStudent()" style="top: 80%;left: 30%;">Submit</div>
+					
+				</form>
+			</div>
+			<div id="addNewEntry">
+				<form id="newEntryForm" onsubmit="submitNewEntry()">
+					<div class="studentFormLabel" style="font-weight: bold; top: 10%;">
+							Add New Entry:
+					</div>
+					<label class = "studentFormLabel" style="top: 20%;">UID : </label>
+					<input type="text" name="studentUID" class = "studentFormEntry" style="top: 20%;">
+
+					<label class = "studentFormLabel" style="top: 30%;">Standard : </label>
+					<input type="text" name="studentStandard" class = "studentFormEntry" style="top: 30%;">
+
+					<label class = "studentFormLabel" style="top: 40%;">Division : </label>
+					<input type="text" name="studentDivision" class = "studentFormEntry" style="top: 40%;">
+
+					<label class = "studentFormLabel" style="top: 50%;">Date : </label>
+					<div id="dateTime" style="top: 50%">
+						<input placeholder="dd" maxlength="2" type="text" name="day" class="dateTimeIndividualValue"/>
+						<input placeholder="mm" maxlength="2" type="text" name="month" class="dateTimeIndividualValue"/>
+						<input placeholder="yy" maxlength="2" type="text" name="year" class="dateTimeIndividualValue"/>
+						<input placeholder="HH" maxlength="2" type="text" name="hour" class="dateTimeIndividualValue"/>
+						<input placeholder="MM" maxlength="2" type="text" name="minute"class="dateTimeIndividualValue"/>
+						<input placeholder="SS" maxlength="2" type="text" name="second "class="dateTimeIndividualValue"/>
+					</div>
+					<label class = "studentFormLabel" style="top: 60%;">Pulse : </label>
+					<input type="text" name="studentPulse" class = "studentFormEntry" style="top: 60%;">
+
+					<label class = "studentFormLabel" style="top: 70%;">Temperature : </label>
+					<input type="text" name="studentTemperature" class = "studentFormEntry" style="top: 70%;">
+
+					<div class="studentFormSubmit" onclick="submitNewEntry()" style="top: 80%;left: 30%;">Submit</div>
+					
+				</form>
+			</div>
+			<div id="deleteDataSection" style="display: none">
+				<div id="deleteDataSwitchButton" class="studentFormLabel" style="font-weight: bold; top: 10%;z-index: 100;">
+							Delete Student:
+				</div>
+				<div id="deleteDataSwitchButton" class="studentFormLabel" style="font-weight: bold;left: 55%; top: 10%;">
+							Delete Section:
+				</div>
+				<form id="deleteDataForm">
+					<label class="studentFormLabel" style="top: 20%;">Student UID:</label>
+					<input id="deleteStudentUIDEntry" class="studentFormEntry" type="text" name="unwantedStudentUID" style="top: 20%; width: 10%; left: 30%"/>
+					<div class="studentFormSubmit" onclick="deleteStudent()" style="top: 30%; width: 20%">Delete Student</div>
+					<div style="left: 50%; border: 1px solid #45489a;position: absolute;height: 100%">
+					</div>
+					<label class="studentFormLabel" style="top: 20%;left: 55%;">Section Name:</label>
+					<input id="deleteSectionEntry" class="studentFormEntry" type="text" name="unwantedStudentUID" style="top: 20%; width: 10%; left: 85%"/>
+					<div class="studentFormSubmit" onclick="deleteSection()" style="top: 30%; width: 20%; left: 55%;">Delete Section</div>
+				</form>
+			</div>
+		</div>
+
+	</div>
+
+
+
+</body>
+</html>

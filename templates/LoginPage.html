@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'mainStylesheet.css')}}">
+	<script type="text/javascript">
+		function validateForm(){
+			var form = document.forms["login"]
+			if(form["Username"].value == "" || form["Password"].value == ""){
+				alert("Please fill out all the fields.");
+			}else{
+				submitAuthentication();
+			}
+
+		}
+		function submitAuthentication(){
+			var form = document.forms["login"]
+			var data = {username: form["Username"].value, password: form["Password"].value};
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("POST", "/login", true)
+			xhttp.setRequestHeader("Content-Type", "application/json");
+			xhttp.onreadystatechange = function() {
+			   if (this.readyState == 4 && this.status == 200) {
+			     // Response
+			     var response = this.responseText;
+			     console.log(response);
+			   }
+			};
+
+			xhttp.send(JSON.stringify(data));
+		}
+
+	</script>
+</head>
+<body>
+	<div id = "loginBox" onsubmit="validateForm()">
+		<form name="login" id="loginForm" method="POST" action="">
+			<input id="username" type="text" name="Username" placeholder="Username" value="{{ request.form.username }}"><br/>
+			<input id="password" type="password" name="Password" placeholder="Password" value="{{ request.form.password }}"><br/>
+			<input id="submit" type="submit" name="Submit" value="login">
+		</form>
+	</div>
+</body>
+</html>

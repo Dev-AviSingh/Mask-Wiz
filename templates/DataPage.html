@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mask Wiz</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'mainStylesheet.css') }}">
+
+	<script type="text/javascript">
+		// Only show the last entry for a particular student, if extra details about a student is asked then display a pop up window for their data, a student's data can be asked for by clicking on the student name in the entry
+
+		// The sections are to be displayed as buttong in a x-axis scrollable div beside the student list text.
+
+		// Order to be called in:
+		// dropDownUpdateCallback() or Pagestart() --> getStudentData() 
+		// --> updateDropdowns() --> updateTable() --> editSingleEntry() --> updateDatabase()
+		// --> encryptAndSendData()
+		var currentSection = null;
+		var sections = []; // Just fucking sort these and it will be in order, no need to add separation.
+		var tableEntrySample = {uid: 123453141, name:"Name", class: "Class", lastRecordDate:"6/9/6969 6:9:42", pulse:69, temperature: 96.0};
+
+		var currentStudentList = []
+		var currentSectionStudentData = []
+		function pageLoadedCallback(){
+			// Start session timer
+			// Get data from server about the divisions and standards.
+			// dropDownUpdateCallback() 
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+			    if (this.readyState == 4 && this.status == 200) {
+			       // Typical action to be performed when the document is ready:
+			       sections = xhttp.responseText.split(" ");
+			       console.log(sections);
+			       if(sections[0] == "" ||sections.length == 0 || sections == null){
+			       	hideLoading();
+			       	alert("No Sections");
+			       	return;
+			       }
+			       updateSectionSelector()
+			    }
+			}; // This is basically the callback function of the response from the server.
+			xhttp.open("GET", "sectionList", true);
+			xhttp.send();
+
+			document.getElementById("loadingScreen").style.backgroundImage = "url('loadingImage.gif')";
+		}
+
+		function sectionButtonCallback(evt){
+			// Get student data, then update the table.
+			var sectionName = evt.target.innerHTML;
+
+			var sectionsSubDivisions = document.getElementById("sectionDivision").childNodes;
+			var i;
+			for(i = 0; i < sectionsSubDivisions.length; i++){
+				sectionsSubDivisions[i].style.backgroundColor = "tomato";
+			}
+			evt.target.style.backgroundColor = "lightblue";
+			currentSection = sectionName;
+			
+			//Update Table
+			document.getElementById("mainTable").innerHTML = "<tr><th>#</th><th>UID</th><th>Name</th><th>Class</th><th>Last Recorded Date</th><th>Pulse</th><th>Temperature</th></tr>";
+			currentSectionStudentData = [];
+			getStudentNames();
+		}
+		function updateSectionSelector(){
+			var sectionsDivision = document.getElementById("sectionDivision");
+			sectionsDivision.innerHTML = "";
+
+			var i;
+			for(i = 0; i < sections.length; i++){
+				var newSectionButton = document.createElement("DIV");
+				newSectionButton.innerHTML = sections[i];
+				newSectionButton.classList.add("sectionButton");
+				newSectionButton.addEventListener("click", sectionButtonCallback, false);
+				sectionDivision.appendChild(newSectionButton);
+			}
+			if(sectionsDivision.childNodes[0] != null){
+				currentSection = sections[0];
+				sectionsDivision.childNodes[0].style.backgroundColor = "lightblue";
+			}
+			getStudentNames();
+		}
+		function getStudentNames(){
+			console.log("getting student names for " + currentSection);
+			displayLoading();
+			if(currentSection != null){
+				var xhttp = new XMLHttpRequest();
+				xhttp.onreadystatechange = function(){
+				    if (this.readyState == 4 && this.status == 200) {
+				    	if (xhttp.responseText == ""){
+				    		hideLoading();
+				    		console.log("The section does not exist.");
+				    	}
+				    		currentStudentList = JSON.parse(xhttp.responseText)["uids"];
+				    		getStudentData();
+					}
+				}
+				xhttp.open("GET", "/studentList/" + currentSection, true);
+				xhttp.send()	
+			}
+		}
+		function getStudentData(){
+			console.log("getting student data");
+			var i;
+
+			if(currentStudentList.length == 0){
+				hideLoading();
+				return;
+			}
+
+			for(i = 0; i < currentStudentList.length; i++){
+				var xhttp = new XMLHttpRequest();
+
+				xhttp.onreadystatechange = function(){
+					if (this.readyState == 4 && this.status == 200) {
+			    		currentSectionStudentData.push(JSON.parse(xhttp.responseText));
+			    		if(currentSectionStudentData.length == currentStudentList.length){
+			    			console.log("All Data Received");
+			    			hideLoading();
+			    		}
+			    		updateTable();
+					}	
+				}
+				xhttp.open("GET", "/studentDataLatest/" + currentStudentList[i], false);
+				xhttp.send()
+			}
+		}
+		function updateTable(){
+			// Update the table from the data that is already preloaded in the browser memory.
+			var alreadyLoadedItems = document.getElementById("mainTable").rows.length;
+			var indexToStartFrom = currentStudentList.length - alreadyLoadedItems;
+
+			var lastStudentData =  Math.max(currentSectionStudentData.length - 1, 0);
+			var lastEntryIndex = Math.max(currentSectionStudentData[lastStudentData].entries.length - 1, 0);
+			if(currentSectionStudentData[lastStudentData].entries.length == 0){
+				console.log("entries are zero");
+				addTableRow(currentSectionStudentData[lastStudentData].uid,
+						currentSectionStudentData[lastStudentData].name,
+						currentSectionStudentData[lastStudentData].standard + " " + currentSectionStudentData[lastStudentData].division,
+						"No Entries",
+						"No Entries",
+						"No Entries");
+
+			}else{
+				console.log("Updating student +" + currentSectionStudentData[lastStudentData].name);
+			}
+			addTableRow(currentSectionStudentData[lastStudentData].uid,
+						currentSectionStudentData[lastStudentData].name,
+						currentSectionStudentData[lastStudentData].standard + " " + currentSectionStudentData[lastStudentData].division,
+						currentSectionStudentData[lastStudentData].entries[lastEntryIndex].date,
+						currentSectionStudentData[lastStudentData].entries[lastEntryIndex].pulse,
+						currentSectionStudentData[lastStudentData].entries[lastEntryIndex].temperature);
+
+		}
+		function addTableRow(uid, name, class_, lastRecordDate, lastRecordedPulse, lastRecordedTemperature){
+			// Elements are in the form of a Javascript object, basically the same as the json storage format for an entry on the server.
+			var table = document.getElementById('mainTable');
+			var lastIndex = table.rows.length;
+			var row = table.insertRow(lastIndex);
+
+			var indexCell = row.insertCell(0);
+			var uidCell = row.insertCell(1)
+			var nameCell = row.insertCell(2);
+			var classCell = row.insertCell(3);
+			var lastRecordDateCell = row.insertCell(4);
+			var lastRecordedPulseCell = row.insertCell(5);
+			var lastRecordedTemperatureCell = row.insertCell(6);
+
+			indexCell.innerHTML = table.rows.length - 1;
+			uidCell.innerHTML = uid;
+			nameCell.innerHTML = name;
+
+			nameCell.addEventListener('click', function(){
+				displaySingleStudentData(lastIndex - 1);
+			});
+
+			classCell.innerHTML = class_;
+			lastRecordDateCell.innerHTML = lastRecordDate;
+			lastRecordedPulseCell.innerHTML = lastRecordedPulse;
+			lastRecordedTemperatureCell.innerHTML = lastRecordedTemperature;
+		}
+		function displaySingleStudentData(studentIndex){
+			var table = document.getElementById("secondaryTable");
+			document.getElementById("secondaryTableSection").style.display = "block";
+
+			document.getElementById("secondaryTableDataName").innerHTML = "Name :" + currentSectionStudentData[studentIndex].name;
+			document.getElementById("secondaryTableDataClass").innerHTML = "Class :" + currentSectionStudentData[studentIndex].standard + " " +currentSectionStudentData[studentIndex].division;
+			document.getElementById("secondaryTableDataUID").innerHTML = "UID :" + currentSectionStudentData[studentIndex].uid;
+
+			document.getElementById("secondaryTable").innerHTML = "<tr><th>#</th><th>Last Recorded Date</th><th>Pulse</th><th>Temperature</th></tr>";
+			var i;
+			for(i = 0; i < currentSectionStudentData[studentIndex].entries.length; i++){
+				var row = table.insertRow(i + 1);
+				var indexCell = row.insertCell(0);
+				var dateCell = row.insertCell(1);
+				var pulseCell = row.insertCell(2);
+				var temperatureCell = row.insertCell(3);
+
+				indexCell.innerHTML = i;
+				dateCell.innerHTML = currentSectionStudentData[studentIndex].entries[i].date;
+				pulseCell.innerHTML = currentSectionStudentData[studentIndex].entries[i].pulse;
+				temperatureCell.innerHTML = currentSectionStudentData[studentIndex].entries[i].temperature;
+			}
+		}
+
+		function closeSecondaryTable(){
+			document.getElementById("secondaryTableSection").style.display = "none";
+		}
+		function loadingAnimation(){
+			loadingAnimationIndex += 1;
+			if(loadingAnimationIndex >= loadingTexts.length){
+				loadingAnimationIndex = 0;
+			}
+			document.getElementById("loadingScreen").innerHTML = loadingTexts[loadingAnimationIndex];
+			console.log(loading);
+			if(loading){
+				setTimeout(loadingAnimation, 100);
+			}
+		}
+		function displayLoading(){
+			document.getElementById("loadingScreen").style.display = "flex";
+		}
+		function hideLoading(){
+			document.getElementById("loadingScreen").style.display = "none";
+		}
+
+	</script>
+
+</head>
+
+<body onload="pageLoadedCallback()">
+	<div class="title">
+		<div style = "
+	display: flex;
+	width: 80%;
+	height: 65%;
+	margin: 10%;
+	font-size: 3vw;
+	color: white;
+	border: 0.1vw solid white;
+	vertical-align: middle;
+	justify-content: center;
+	align-items: center;">Mask Wiz</div>
+		
+	</div>
+	<div class="sidePanel">
+		<a href="/">
+			<div class="sidePanelItemSelected" style="top: 0%;"><div style="padding-top: 11%; font-size: 2vw">Data Base</div></div>
+		</a>
+		<a href="/recordsPage">
+			<div class="sidePanelItem" style="top: 20%;"><div style="padding-top: 11%; font-size: 2vw">Access Records</div></div>
+		</a>
+		<a href="/addData">
+			<div class="sidePanelItem" style="top: 40%;"><div style="padding-top: 11%; font-size: 2vw">Add Data</div></div>
+		</a>
+
+	</div>
+	<div class="content">
+		<div class = "listTitle">
+			<span class="listTitleText">Student List:</span>
+			<div id="sectionDivision">
+			</div>
+		</div>
+		<div class="tableSection">
+			<table id = "mainTable" class = "niceTable">
+				<tr>
+					<th>#</th>
+					<th>UID</th>
+					<th>Name</th>
+					<th>Class</th>
+					<th>Last Recorded Date</th>
+					<th>Pulse</th>
+					<th>Temperature</th>
+				</tr>
+			</table>
+		</div>
+
+	</div>
+
+	<div id="secondaryTableSection">
+		<div id="returnButton" onclick="closeSecondaryTable()">X</div>
+
+		<div id="secondaryTableData">
+				<div class="secondaryListTitleText" id="secondaryTableDataName">Name</div>
+				<div class="secondaryListTitleText" id="secondaryTableDataUID">UID</div>
+				<div class="secondaryListTitleText" id="secondaryTableDataClass">Class</div>
+		</div>
+		
+		<table id = "secondaryTable" class = "niceTable">
+				<tr>
+					<th style="position: relative;">#</th>
+					<th style="position: relative;">Last Recorded Date</th>
+					<th style="position: relative;">Pulse</th>
+					<th style="position: relative;">Temperature</th>
+				</tr>
+			</table>
+	</div>
+
+	<div id="loadingScreen">Loading</div>
+
+</body>
+</html>

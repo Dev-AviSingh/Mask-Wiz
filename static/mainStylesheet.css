@@ -1,0 +1,422 @@
+body{
+	font-size: 30px;
+	font-family: "Times New Roman";
+}
+a{
+	display:block;
+	color: black;
+	text-decoration: none;
+}
+.title{
+	position: absolute;
+	top:0%;
+	left:0%;
+	width: 20%;
+	height: 25%;
+	font-size: 30px;
+	text-align: center;
+	background-color: #45489a;
+}
+
+.sidePanel{
+	position: absolute;
+	top:25%;
+	left:0%;
+	width: 20%;
+	height:75%;
+	font-size: 25px;
+	font-family: calibri;
+	background-color: #121212;
+}
+.sidePanelItem{
+	position: absolute;
+	width: 100%;
+	height: 20%;
+	text-align: center;
+	color: white;	
+}
+.sidePanelItem:hover{
+	background-color: #f34;
+}
+.sidePanelItemSelected{
+	position: absolute;
+	width: 100%;
+	height: 20%;
+	text-align: center;
+	color: white;
+	background-color: #f34;
+}
+.content{
+	position: absolute;
+	background-color: #FFF;
+	top: 0%;
+	left: 20%;
+	width: 80%;
+	height: 100%;
+}
+.listTitle{
+	position: absolute;
+	margin: 5%;
+	font-size: 3vw;
+	color: #232323;
+	border: none;
+	border-bottom: 0.1vw solid #45489a;
+	width: 90%;
+}
+.tableSection{
+	position: absolute;
+	top: 10%;
+	margin: 5%;
+	width: 90%;
+	height: 75%;
+	border: 1px solid #45489a;
+}
+#loginBox{
+	position: absolute;
+	top: 35%;
+	left: 35%;
+	width: 30%;
+	height: 30%;
+	border-radius: 5px;
+	border: 2px solid black;
+	box-shadow: 0px 0px 2px 1px darkblue;
+}
+#username{
+	position: absolute;
+	width: 90%;
+	height: 25%;
+	margin: 5%;
+	top: 0%;
+	left: 0%;
+	border-radius: 5px;
+	border: 2px solid darkblue;
+}
+#username::placeholder{
+	color: black;
+	font-size: 23px;
+	text-align: center;
+}
+#password{
+	position: absolute;
+	width: 90%;
+	height: 25%;
+	margin: 5%;
+	top: 30%;
+	left: 0%;
+	border-radius: 5px;
+	border: 2px solid darkblue;
+}
+#password::placeholder{
+	color: black;
+	font-size: 23px;
+	text-align: center;
+}
+#submit{
+	position: absolute;
+	width: 30%;
+	height: 25%;
+	margin: 5%;
+	top: 60%;
+	left: 0%;
+
+}
+.tableSection{
+	overflow-y: scroll;
+}
+.niceTable{
+	position: absolute;
+	font-size: 30px;
+	width: 100%;
+	border-collapse: collapse;
+	border-top: none;
+}
+.niceTable tr:nth-child(even){
+	background-color: #eee;
+}
+#mainTable td:nth-child(3):hover{
+	background-color: #FF3333;
+}
+table, th, td {
+	border: 1px solid black;
+	margin: 0px;
+}
+td{
+	font-size: 1.5vw
+}
+th {
+	font-size: 2.2vw;
+	background-color: #45489a;
+	color: white;
+	font-weight: 1;
+	top: 0px;
+}
+#sectionDivision{
+	position: absolute;
+	top: 10%;
+	right: 0%;
+	width: 75%;
+	height: 80%;
+	color: black;
+	word-spacing: -100%;
+}
+.sectionButton{
+	display: inline-flex;
+	vertical-align: top;
+	border-left: 1px solid black;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	text-align: right;
+	padding-top: 0px;
+	font-size: 2.5vw;
+	padding-left: 1vw;
+	padding-right: 1vw;
+	background-color: tomato;
+}
+.sectionButton:nth-last-child(1){
+	border-right: 1px solid black;
+}
+
+#secondaryTableSection{
+	display: none;
+	position: fixed;
+	top: 5%;
+	left: 10%;
+	width: 70%;
+	height: 70%;
+	box-shadow: 0px 0px 5px 2px black;
+	background-color: white;
+	padding:5%;
+	overflow-y: scroll;
+}
+#secondaryTable{
+	position: relative;
+	margin-top: 5%;
+	width: 100%;
+}
+#returnButton{
+	position: absolute;
+	right: 5%;
+	top: 5%;
+	font-size: 2vw;
+	width:5%;
+	height: 5%;
+	background-color: lightblue;
+	box-shadow: 0px 0px 5px 2px lightblue;
+	border-radius: 5px;
+	color: #323232;
+	font-weight: bold;
+	display: flex;
+	justify-content: center;
+	vertical-align: middle;
+	font-family: "calibri";
+}
+#returnButton:hover{
+	color: tomato;
+}
+
+#secondaryTableData{
+	position: absolute;
+	top: 10%;
+	left: 6.4%;
+	width: 100%;
+	height: 100%;
+	color: black;
+	word-spacing: -100%;
+}
+.secondaryListTitleText{
+	display: inline-flex;
+	color: white;
+	vertical-align: top;
+	border-left: 1px solid black;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	text-align: right;
+	padding-top: 0px;
+	font-size: 2.5vw;
+	padding-left: 1vw;
+	padding-right: 1vw;
+	background-color: tomato;
+}
+.secondaryListTitleText:nth-last-child(1){
+	border-right: 1px solid black;
+}
+#loadingScreen{
+	position: fixed;
+	display: flex;
+	top: 0%;
+	left: 0%;
+	width: 100%;
+	height: 100%;
+	color: white;
+	vertical-align: middle;
+	justify-content: center;
+	font-family: "arial";
+	font-weight: bold;
+	background-repeat: no-repeat;
+	background-position: center;
+	opacity: 0.7;
+	background-size: contain;
+	background-color: rgba(0, 0, 0, 1);
+}
+#addNewStudent{
+	position: absolute;
+	left: 0%;
+	top: 0%;
+	width: 50%;
+	height: 100%;
+}
+#addNewEntry{
+	position: absolute;
+	left: 50%;
+	top: 0%;
+	width: 50%;
+	height: 100%;
+	border-left: 1px solid #45489a;
+}
+.studentFormLabel{
+	position: absolute;
+	left: 5%;
+	height: 10%;
+	width: 50%;
+	font-size: 2vw;
+	color: #232323;
+	font-family: sans-serif;
+}
+.studentFormEntry{
+	position: absolute;
+	left: 50%;
+	height: 6%;
+	width: 40%;
+	border: none;
+	border-bottom: 1px solid #45489a;
+	border-radius: 0.1vw;
+	text-align: center;
+}
+.studentFormSubmit{
+	position: absolute;
+	left: 5%;
+	height: 6%;
+	width: 40%;
+	background-color: white;
+	border: 1px solid #45489a;
+	border-radius: 0.5vw;
+	font-size: 1.5vw;
+	text-align: center;
+	font-family: "calibri";
+	display: flex;
+	vertical-align: middle;
+	justify-content: center;
+}
+.studentFormSubmit:hover{
+	background-color: tomato;
+	color: white;
+}
+.separator{
+	position: absolute;
+	left: 5%;
+	width: 90%;
+	border-bottom: 1px solid #45489a;
+	margin-bottom: 5%;
+}
+br{
+	font-size: 30px;
+}
+hr{
+	height: 0px;
+	border: 0.1px solid #45489a;
+}
+
+#dateTime{
+	position: absolute;
+	left: 50%;
+	height: 6%;
+	width: 40%;
+	border-radius: 0.5vw;
+	justify-content: center;
+	word-spacing: -100%;
+	padding: 0px;
+	display: flex;
+	vertical-align: top;
+
+}
+.dateTimeIndividualValue{
+	display: inline-flex;
+	width: 15%;
+	height: 100%;
+	justify-content: center;
+	text-align: center;
+	border: 1px solid #45489a;
+	border-left: 0px solid #45489a;
+}
+.dateTimeIndividualValue:nth-child(1){
+	border-radius: 0.5vw 0px 0px 0.5vw;
+	border-left: 1px solid #45489a;
+}
+.dateTimeIndividualValue:nth-last-child(1){
+	border-radius: 0vw 0.5vw 0.5vw 0px;
+}
+#addNewSectionDiv{
+	position: absolute;
+	right: 0%;
+	top: 0%;
+	height: 100%;
+	font-size: 2.2vw;
+	width: 40%;
+}
+#addNewSectionEntry{
+	position: absolute;
+	top: 10%;
+	left: 0%;
+	height: 80%;
+	width: 20%;
+	border: none;
+	border-bottom: 1px solid #45489a;
+	text-align: center;
+	font-size: 1.3vw;
+
+}
+#addNewSectionSubmitButtonDiv{
+	position: absolute;
+	top: 10%;
+	left: 30%;
+	font-size: 2vw;
+	height: 80%;
+	width: 60%;
+	background-color: white;
+	border: 1px solid #45489a;
+	border-radius: 0.5vw;
+	font-size: 1.5vw;
+	text-align: center;
+	font-family: "calibri";
+}
+#addNewSectionSubmitButtonDiv:hover{
+	background-color: tomato;
+	color: white;
+}
+#deleteDataSection{
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background-color: white;
+	box-shadow: 0px 0px 5px 2px black;
+}
+#switchDeleteAndAddDataButton{
+	position: absolute;
+	left: 41%;
+	top: 15%;
+	height: 70%;
+	font-size: 2vw;
+	border-radius: 0.5vw;
+	padding-left: 2%;
+	padding-right: 2%;
+	background-color: #565656;
+	color: white;
+	display: flex;
+	z-index: 100;
+}
+#switchDeleteAndAddDataButton:active{
+	border: 2px solid gold;
+
+}
